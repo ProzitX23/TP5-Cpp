@@ -1,0 +1,28 @@
+[other]
+# Name of the mesh
+mesh = "Meshes/bouilloire1.mesh"
+# Diffusion coefficients
+mu = 0.00000015
+# Results folder
+results = "Results/FullCase/"
+# Numerical flux choice: centered or upwind
+numerical_flux = "upwind"
+
+[time]
+# Time parameters
+t0 = 0.0
+tfinal = 100.0
+dt = 1.0
+# Time scheme: ExplicitEuler = Explicit Euler ImplicitEuler = Implicit Euler
+scheme = "ImplicitEuler"
+
+# Boundary Conditions
+[BC]
+ref = [1,2,3,4]
+BC = ["Dirichlet","Neumann","Neumann","Neumann"]
+
+# Test scenarii
+# Choice between: none ; diffusion_hom_neumann ; diffusion_all_BC ;
+# advection_hom_neumann ; advection_all_BC ; diffusion_advection_all_BC ; bouilloire1
+[scenarii]
+which_scenario = "bouilloire1"
