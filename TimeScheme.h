@@ -28,6 +28,8 @@ public:
    virtual void Advance() = 0;
    // Permet de récupérer _sol
    const Eigen::VectorXd & Get_sol() const {return _sol;};;
+   // Calcul la moyenne des températures
+   void Moyenne();
 };
 
 class EulerScheme : public TimeScheme

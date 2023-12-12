@@ -76,6 +76,7 @@ int main(int argc, char** argv)
       for (int n = 1; n <= nb_iterations; n++) // Boucle en temps
       {
          time_scheme->Advance();
+         time_scheme->Moyenne();
          t+=data_file->Get_dt();
          time_scheme->Save_solution(n);
          VectorXd exact_sol = fin_vol->Exact_solution(t);

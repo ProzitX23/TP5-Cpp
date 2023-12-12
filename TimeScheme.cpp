@@ -29,18 +29,29 @@ TimeScheme::~TimeScheme()
 {
 }
 
+void TimeScheme::Moyenne()
+{  
+   double Moy;
+   double j(_sol.size());
+   for (int i(0);i<_sol.size();i++)
+   {
+      Moy=Moy+_sol(i);
+   }
+   Moy=Moy/j;
+   cout <<"La température moyenne est:"<< Moy << endl;
+}
+
 // Euler Explicite
 void EulerScheme::Advance()
 {
+   double _dt=this->_df->Get_dt();
    _fin_vol->Build_flux_mat_and_rhs(this->_t);
    SparseMatrix<double> A=_fin_vol->Get_flux_matrix();
    VectorXd B=_fin_vol->Get_BC_RHS();
-   double _dt=_df->Get_dt();
    SparseMatrix<double> Id(A.rows(),A.cols());
    Id.setIdentity();
-   vector<Triplet<double>> triplets;	triplets.clear();
    VectorXd S=_fin_vol->Source_term(this->_t);
-   this->_sol = (Id-_dt*A)*this->_sol+_dt*(S-B);
+   this->_sol = this->_sol -_dt*(A*this->_sol+B)+_dt*S;
    this->_t += _dt;
 }
 

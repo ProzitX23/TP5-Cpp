@@ -35,6 +35,7 @@ void FiniteVolume::Build_flux_mat_and_rhs(const double& t)
 		int k  = e[i].Get_T1();
 		int j  = e[i].Get_T2();
 		double longueur = l(i);
+		double alphaA; double betaA;
 		double aire1=a(k);
 		double x=center(i,0);
 		double y=center(i,1);
@@ -45,10 +46,26 @@ void FiniteVolume::Build_flux_mat_and_rhs(const double& t)
 		double x1=centertri(k,0);
 		double y1=centertri(k,1);
 		double vn=Vx*nx+Vy*ny;
-		double alphaA=vn/2;
-		double betaA=alphaA;
 		double distancecenter=sqrt(pow(x1-x,2)+pow(y1-y,2));
 		double mu=_df->Get_mu();
+		if (this->_df->Get_numerical_flux_choice() == "upwind")
+		{
+			if (vn<0)
+			{
+				alphaA = 0.;
+				betaA = vn;
+			}
+			else
+			{
+				alphaA = vn;
+				betaA = 0.;
+			}
+		}
+		else if (this->_df->Get_numerical_flux_choice() == "centered")
+		{
+			alphaA = vn/2;
+			betaA = vn/2;
+		}
 		if (j==-1)
 		{
 			if (e[i].Get_BC()=="Dirichlet")
@@ -57,13 +74,13 @@ void FiniteVolume::Build_flux_mat_and_rhs(const double& t)
 				double alphaD=mu/(distancecenter);
 				double betaD=-alphaD;
 				triplets.push_back({k,k,((longueur*alphaD)/aire1)*(alphaA-betaA)+(longueur*alphaD)/aire1});
-				_BC_RHS(k)=2*betaA*(longueur/aire1)*h+((longueur*betaD)/aire1)*h;
+				_BC_RHS(k)+=2*betaA*(longueur/aire1)*h+((longueur*betaD)/aire1)*h;
 			}
 			if (e[i].Get_BC()=="Neumann")
 			{
 				double g=_fct->Neumann_Function(x, y, t);
 				triplets.push_back({k,k,(longueur/aire1)*(alphaA+betaA)});
-				_BC_RHS(k)=-(mu*longueur*g)/aire1+(betaA*longueur*2*distancecenter*g)/aire1;
+				_BC_RHS(k)+=-(mu*longueur*g)/aire1+(betaA*longueur*2*distancecenter*g)/aire1;
 			}
 		}
 		else
@@ -83,10 +100,10 @@ void FiniteVolume::Build_flux_mat_and_rhs(const double& t)
 		}
 	}
 	this->_mat_flux.setFromTriplets(triplets.begin(), triplets.end());
-	cout <<"La matrice A est:" << endl;
-	cout << _mat_flux << endl;
-	cout << "Le vecteur B est:" << endl;
-	cout << _BC_RHS << endl;
+	// cout <<"La matrice A est:" << endl;
+	// cout << _mat_flux << endl;
+	// cout << "Le vecteur B est:" << endl;
+	// cout << _BC_RHS << endl;
 }
 
 
@@ -115,7 +132,7 @@ VectorXd FiniteVolume::Source_term(double t)
 		sourceterm(i) = this->_fct->Source_term(this->_msh->Get_triangles_center()(i,0),
 		this->_msh->Get_triangles_center()(i,1), t);
 	}
-	cout << sourceterm << endl;
+	// cout << sourceterm << endl;
 	return sourceterm;
 }
 
